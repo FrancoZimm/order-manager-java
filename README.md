@@ -1,5 +1,7 @@
 # Order Manager · Java
 
+[![CI](https://github.com/FrancoZimm/order-manager-java/actions/workflows/maven.yml/badge.svg)](https://github.com/FrancoZimm/order-manager-java/actions/workflows/maven.yml)
+
 Aplicación de escritorio en **Java (Swing)** para gestionar pedidos: buscarlos, crearlos, editarlos y borrarlos, con los importes en **euros o dólares** según el tipo de cambio en tiempo real.
 
 La desarrollé en la asignatura *Introducción a la Ingeniería de Software* del Grado en Ingeniería Informática (Universidad Europea de Madrid), aplicando arquitectura **MVC**, pruebas unitarias e integración continua.
