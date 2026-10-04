@@ -1,0 +1,34 @@
+# Maven
+target/
+*.log
+*.class
+*.jar
+*.war
+*.ear
+
+# Dependencias de Maven (locales)
+.mvn/
+
+# Directorios de configuraciones específicas del IDE
+.vscode/
+.idea/
+*.iml
+
+# Archivos temporales de Visual Studio Code
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+
+# Archivos de configuración de Maven
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de configuraciones de Maven Wrapper
+mvnw
+mvnw.cmd
