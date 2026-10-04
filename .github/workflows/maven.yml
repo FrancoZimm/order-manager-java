@@ -1,0 +1,58 @@
+name: Build and Auto-Release (Java Swing Maven)
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven
+
+      - name: Check if pom.xml changed
+        id: detect
+        run: |
+          if git diff HEAD~1 --name-only | grep -q "pom.xml"; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Stop if pom.xml not changed
+        if: steps.detect.outputs.changed == 'false'
+        run: echo "No se ha modificado pom.xml. No se generará release." && exit 0
+
+      - name: Get version
+        id: version
+        run: echo "version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
+
+      - name: Build with Maven
+        run: mvn -B clean package
+
+      - name: Prepare JAR
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          mv target/*.jar target/swing-app-${VERSION}.jar
+
+      - name: Create tag and release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: "Release v${{ steps.version.outputs.version }}"
+          body: "Automated release for version ${{ steps.version.outputs.version }}"
+          files: target/swing-app-${{ steps.version.outputs.version }}.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
