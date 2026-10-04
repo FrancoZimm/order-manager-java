@@ -1,0 +1,51 @@
+@startuml UseCases_UEM
+title Casos de uso - UEM (Gestion de pedidos, v2)
+
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Usuario" as User
+actor "Servicio tipos de cambio" as FxService
+
+package "Gestion de pedidos" {
+  usecase "Cargar pedidos\n(desde JSON)" as UC_Load
+  usecase "Listar ids\nde pedidos" as UC_List
+  usecase "Buscar pedido\npor ID" as UC_Search
+  usecase "Ver detalles\nde pedido" as UC_View
+  usecase "Cambiar moneda\n(EUR / USD)" as UC_Currency
+  usecase "Limpiar vista\nde pedido" as UC_Clear
+  usecase "Crear pedido" as UC_Create
+  usecase "Borrar pedido" as UC_Delete
+  usecase "Editar pedido\n(cant/descuento)" as UC_Edit
+}
+
+package "Calculos y articulos" {
+  usecase "Calcular totales\n(gross/discounted)" as UC_Calc
+  usecase "Aplicar descuento" as UC_Discount
+}
+
+package "Servicios externos" {
+  usecase "Obtener tipo de\ncambio EUR/USD" as UC_Rate
+}
+
+' Relaciones Usuario - casos de uso
+User --> UC_Load
+User --> UC_List
+User --> UC_Search
+User --> UC_View
+User --> UC_Currency
+User --> UC_Clear
+User --> UC_Create
+User --> UC_Delete
+User --> UC_Edit
+
+' Servicio externo de tipos de cambio
+FxService --> UC_Rate
+
+' Relaciones entre casos de uso existentes
+UC_Search ..> UC_View      : <<include>>
+UC_View   ..> UC_Calc      : <<include>>
+UC_Calc   ..> UC_Discount  : <<include>>
+UC_View   ..> UC_Rate      : <<include>>
+
+@enduml

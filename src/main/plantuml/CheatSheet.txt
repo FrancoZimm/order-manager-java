@@ -1,0 +1,204 @@
+PlantUML - Cheatsheet y uso en VS Code (extensión PlantUML)
+==========================================================
+
+1) Requisitos
+- Instala Graphviz (necesario para PNG/SVG): https://graphviz.org/download/
+- Descarga plantuml.jar o usa la extensión de VS Code (jebbs.plantuml).
+- En VS Code: instala "PlantUML" (extensión jebbs.plantuml).
+
+2) Comandos útiles de la extensión (Palette / Command)
+- "PlantUML: Preview Current Diagram" — muestra el preview del .puml abierto.
+- "PlantUML: Preview to Side" — muestra preview en panel lateral.
+- "PlantUML: Export Current Diagram" — exporta a PNG/SVG/ASCII/PDF.
+- "PlantUML: Refresh Diagram" — força refresco.
+- Menú contextual: botón derecho → "Preview Current Diagram" / "Export Current Diagram".
+- Atajos (si disponibles en tu configuración): normalmente Alt+D abre/cierra preview (puede variar).
+
+3) Generar desde línea de comandos
+- Generar PNG de un archivo:
+  java -jar C:\ruta\a\plantuml.jar -tpng src\main\plantuml\UML.puml -o target/plantuml
+- Generar SVG:
+  java -jar C:\ruta\a\plantuml.jar -tsvg src\main\plantuml\UML.puml -o target/plantuml
+- Generar recursivamente desde código Java:
+  java -jar C:\ruta\a\plantuml.jar -tpng -r src\main\java\com\example\model -o target/plantuml
+- Opciones útiles: -v (verbose), -charset UTF-8, -o (directorio salida)
+
+4) Estructura básica de un diagrama
+@startuml ... @enduml
+title Título
+skinparam monochrome true
+
+5) Diagramas de clases - sintaxis básica
+class Person {
+  - name: String
+  - age: int
+  + getName(): String
+  + setName(String)
+}
+
+interface Service {
+  + execute()
+}
+
+enum Status {
+  ACTIVE
+  PENDING
+  CLOSED
+}
+
+6) Relaciones entre clases
+- Asociación simple (sin flecha):
+  A -- B
+- Asociación con flecha (direccionada):
+  A --> B
+- Herencia (generalización):
+  Child --|> Parent   or   Parent <|-- Child
+- Realización (implementa interface):
+  Impl ..|> Interface
+- Dependencia:
+  A ..> B
+- Composición (fuerte, rombo lleno):
+  A *-- B
+- Agregación (rombo vacío):
+  A o-- B
+- Multiplicidad:
+  "1" --> "*" : contains
+- Etiquetar relaciones:
+  A --> B : uses
+
+7) Notas y cajas (recuadros)
+- Nota:
+  note left of A : Esto es una nota
+- Recuadro (group/box):
+  package "Mi Paquete" {
+    class A
+    class B
+  }
+- Rectangle / frame:
+  rectangle "Mi caja" {
+    A
+    B
+  }
+- Divider / title dentro de package:
+  package "API" as P <<Rectangle>> { ... }
+
+8) Agrupar y layout
+- group / end group (sequence diagrams) — para secuencias.
+- use 'skinparam' para styling global:
+  skinparam classAttributeIconSize 0
+  skinparam backgroundColor #FDF6E3
+- Forzar orientación:
+  left to right direction
+  top to bottom direction
+
+9) Etiquetas y estereotipos
+- class A <<entity>>
+- class B <<service>>
+
+10) Mostrar campos / métodos y visibilidad
+- + public, - private, # protected, ~ package
+- Para no mostrar detalles:
+  class A << (T,#FFAAAA) >> {
+    .. only summary ..
+  }
+
+11) Otros elementos útiles
+- actor: actor User
+- usecase: usecase "Login" as UC1
+- sequence: participant A, participant B; A -> B: mensaje
+- activity: start; :acción; if (cond) then (sí) :accion; endif; stop
+- note over A,B: nota sobre ambos
+
+12) Colores y estilos
+- Colores en relaciones: A -[#blue]-> B
+- Color de clase: class A #LightBlue
+- Fuente y tamaño:
+  skinparam defaultFontSize 12
+  skinparam classFontName "Arial"
+
+13) PlantUML con Java sources (autogenerar)
+- plantuml puede parsear código Java:
+  java -jar plantuml.jar -tpng -r src/main/java/com/example/model -o target/plantuml
+- Resultado: un .png por cada paquete/clase según el parsing
+
+14) Tips para VS Code / ext plantuml
+- Habilita "plantuml.server" si usas servidor de render.
+- Si usas plantuml.jar local, configura en settings:
+  "plantuml.jar.path": "C:\\ruta\\a\\plantuml.jar"
+- Para exportar sin Graphviz (ASCII / Plain) no necesitas Graphviz.
+- Si exportas PNG/SVG y da error, instala Graphviz y añade su bin a PATH.
+
+15) Ejemplos rápidos (copiar/pegar)
+
+Diagrama de clases simple:
+@startuml
+left to right direction
+class Order {
+  - id: String
+  - articles: List<Article>
+  + getGrossTotal(): double
+}
+class Article {
+  - name: String
+  - price: double
+  + getGrossAmount(): double
+}
+Order "1" *-- "*" Article : contains >
+@enduml
+
+Recuadro + nota + relación coloreada:
+@startuml
+rectangle "Facade" {
+  class API
+}
+class Impl
+note right of Impl : Implementación detallada
+API -[#green]-> Impl : utiliza
+@enduml
+
+16) Recursos y documentación
+- PlantUML reference: https://plantuml.com/
+- Ejemplos de diagramas: https://plantuml.com/examples
+- Extensión VS Code: https://marketplace.visualstudio.com/items?itemName=jebbs.plantuml
+
+17) Problemas comunes
+- PNG vacío / falla en render: falta Graphviz o no está en PATH.
+- VS Code no muestra preview: revisa configuración de plantuml.jar.path o usa Server.
+- Texto UTF-8: usa -charset UTF-8 o guarda .puml en UTF-8.
+
+Fin. Guarda este archivo en src/main/plantuml y úsalo como referencia rápida.
+
+18) Nuevas notaciones vistas en los diagramas del proyecto
+- **Despliegue (deployment):** usa `node`, `component`, `artifact`, `database`.
+  - Ejemplo con alias y salto de línea en etiqueta:
+    `node "Cliente\n(Web Browser / App)" as Client { component "Order UI" as UI }`
+  - `artifact "orders-service.jar" as JAR` — artefacto desplegable.
+  - Relación de despliegue (línea punteada):
+    `OrderService .. JAR : deployed as`
+
+- **Diagramas de secuencia (nuevas piezas):** `participant`, `activate`, `deactivate`, `group`, `alt/else`.
+  - Barras de activación:
+    `Controller -> Searcher : findById()`
+    `activate Searcher`
+    `Searcher --> Controller : Order`
+    `deactivate Searcher`
+  - Bloques condicionales:
+    `alt orden encontrada` / `else orden no encontrada` / `end`
+  - Agrupación de pasos:
+    `group Flujo principal - Buscar orden` ... `end`
+
+- **Notas y alcance:** `note left of`, `note right of`, `note over A,B` (nota sobre varios elementos).
+
+- **Use cases (casos de uso):** relaciones `<<include>>`, `<<extend>>` y estilo por estereotipo.
+  - Incluir: `UC_Search .> UC_View : <<include>>`
+  - Extender: `UC_Import ..> UC_Load : <<extend>>`
+  - Personalizar estilos por estereotipo:
+    `skinparam usecase { BackgroundColor<<include>> #E8F3FF BorderColor #2A6F97 }`
+
+- **Aliases y etiquetas multi-línea:** puedes usar `"...\n..." as Alias` para mostrar subtítulos y asignar un alias legible.
+
+- **Elementos para almacenamiento y servicios externos:** `database "Relational DB\n(PostgreSQL)" as DB`, `node "Object Storage"`, `node "Gateway Externo"`.
+
+- **Estética y layout en despliegues/paquetes:** `skinparam packageStyle rectangle`, `left to right direction`.
+
+Estos ejemplos se basan en `DESPL.puml`, `DNSEC.puml`, `UML.puml` y `USO.puml` del proyecto. Añade más ejemplos concretos si quieres que los copie literal a esta cheat sheet.

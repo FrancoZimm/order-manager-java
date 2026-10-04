@@ -1,0 +1,109 @@
+@startuml Uml_Intro_Ingenieria_Software
+title UML - com.example (actualizado)
+
+left to right direction
+skinparam packageStyle rectangle
+
+package "com.example" {
+  class Main {
+    + main(String[]): void
+    + loadOrders(): List<Order>
+  }
+}
+
+package "com.example.model" {
+  class Article {
+    - name: String
+    - quantity: int
+    - price: double
+    - discount: double
+    + Article(name, quantity, price, discount)
+    + Article()
+    + getName(): String
+    + setName(String)
+    + getQuantity(): int
+    + setQuantity(int)
+    + getPrice(): double
+    + setPrice(double)
+    + getDiscount(): double
+    + setDiscount(double)
+    + getGrossAmount(): double
+    + getDiscountedAmount(): double
+    + toString(): String
+  }
+
+  class Order {
+    - id: String
+    - articles: List<Article>
+    + Order(id, articles)
+    + Order()
+    + getId(): String
+    + setId(String)
+    + getArticles(): List<Article>
+    + setArticles(List<Article>)
+    + getGrossTotal(): double
+    + getDiscountedTotal(): double
+    + toString(): String
+  }
+
+  class Calculator {
+    + EMPTY: String
+    + multiply(int,int): int
+    + concat(String,String): String
+    + sum(double,double): double
+    + divide(double,double): double
+    + discount(double,double): double
+    + calculateTotal(List<Double>): double
+  }
+
+  class Searcher {
+    + searchExactPhrase(String, List<String>): boolean
+    + searchWord(String, List<String>): boolean
+    + getWordByIndex(List<String>, int): String
+    + searchByPrefix(String, List<String>): List<String>
+    + findById(List<Order>, String): Order
+  }
+}
+
+package "com.example.service" {
+  class ExchangeRateService {
+    + getRate(String): double
+  }
+}
+
+package "com.example.controller" {
+  class OrderController {
+    - view: com.example.view.OrderView
+    - orders: List<Order>
+    - searcher: Searcher
+    - exchangeRateService: ExchangeRateService
+    + OrderController(view, orders)
+    - searchOrder(): void
+  }
+}
+
+package "com.example.view" {
+  class OrderView <<JFrame>> {
+    - searchField: JTextField
+    - searchButton: JButton
+    - resultArea: JTextArea
+    + OrderView()
+    + getSearchButton(): JButton
+    + getSearchId(): String
+    + getSelectedCurrency(): String
+    + displayOrder(Order, double rate, String currency): void
+    + showMessage(String): void
+    + clearOrderDetails(): void
+  }
+}
+
+' Relaciones
+Order "1" *-- "*" Article : contiene
+Article ..> Calculator : utiliza
+OrderController --> OrderView : usa
+OrderController ..> Searcher : usa
+OrderController ..> ExchangeRateService : usa
+Searcher ..> Order : consulta
+Main ..> OrderController : inicia
+
+@enduml

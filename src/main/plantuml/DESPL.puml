@@ -1,0 +1,53 @@
+@startuml DESPL_Order
+title Diagrama de despliegue - Proceso de una Orden (actualizado)
+
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Usuario" as User
+
+node "Cliente\n(Web Browser / App)" as Client {
+  artifact "Order UI (HTML/JS / Desktop)" as UI
+}
+
+node "Reverse Proxy\n(Load Balancer)" as Proxy {
+  artifact "Nginx / HAProxy" as NGINX
+}
+
+node "Web Application Server\n(order-service.example.com)" as WebApp {
+  component "OrderService (JAR)" as OrderService
+  component "OrderController" as Controller
+  component "Searcher" as Searcher
+  component "Calculator" as Calculator
+  component "ExchangeRateService" as ExchangeRate
+  artifact "orders-service.jar" as JAR
+}
+
+node "Application Server / Workers" as Workers {
+  component "Background Worker" as Worker
+}
+
+database "Relational DB\n(PostgreSQL)" as DB
+node "Object Storage\n(S3 / Buckets)" as Storage
+node "Third-party API\n(Payment / Exchange)" as ExternalAPI
+
+' Comunicación
+User --> UI : Interacción (buscar / ver)
+UI --> Proxy : HTTPS (REST)
+Proxy --> OrderService : HTTPS (forward)
+OrderService --> Controller : internal call
+Controller --> Searcher : busca orden
+Controller --> Calculator : calcula totales
+Controller --> ExchangeRate : obtiene tipo de cambio
+Controller --> DB : lectura/escritura (JDBC)
+Controller --> Storage : S3 API (guardar documentos)
+OrderService --> ExternalAPI : pagos / verificación
+
+Worker --> DB : jobs (export/import)
+Worker --> Storage : archivos masivos
+
+note right of DB
+  Base de datos relacional, réplicas y backups.
+end note
+
+@enduml

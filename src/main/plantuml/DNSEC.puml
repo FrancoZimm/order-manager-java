@@ -1,0 +1,66 @@
+@startuml DNSEC_Order_Sequence
+title Secuencia - Buscar y mostrar una Orden (actualizado)
+
+actor "Usuario" as User
+participant "OrderView (UI)" as View
+participant "OrderController" as Controller
+participant "Searcher" as Searcher
+database "DB (Postgres)" as DB
+participant "Calculator" as Calc
+participant "ExchangeRateService" as ExchangeRate
+
+== Flujo principal: Buscar orden ==
+User -> View : ingresa ID y hace clic en Buscar
+View -> Controller : onSearchButtonClicked(id)
+activate Controller
+
+Controller -> Searcher : findById(orders, id)
+activate Searcher
+Searcher -> DB : SELECT order WHERE id = ?
+DB --> Searcher : datos de la orden (o null)
+deactivate DB
+
+alt orden encontrada
+    Searcher --> Controller : Order
+    deactivate Searcher
+
+    Controller -> ExchangeRate : getRate(currency)
+    activate ExchangeRate
+    ExchangeRate --> Controller : rate
+    deactivate ExchangeRate
+
+    Controller -> Calc : calcular totales(order)
+    activate Calc
+    Calc --> Controller : gross, discounted
+    deactivate Calc
+
+    Controller -> View : displayOrder(order, rate, currency)
+    View --> User : muestra detalles de la orden
+else orden no encontrada
+    Searcher --> Controller : null
+    deactivate Searcher
+
+    Controller -> View : showMessage("Order not found.")
+    Controller -> View : clearOrderDetails()
+    View --> User : muestra "Order not found."
+end
+deactivate Controller
+
+== Caso: ID vacío ==
+User -> View : clic Buscar con ID vacío
+View -> View : validar entrada
+alt ID inválido
+    View --> User : showMessage("Please enter an order id.")
+end
+
+== Error inesperado ==
+Controller -> Searcher : findById(...) (lanza excepción)
+Searcher --> Controller : Exception
+Controller -> View : showMessage("An unexpected error occurred while searching the order.")
+View --> User : muestra mensaje
+
+note over Searcher, DB
+  Searcher delega en repositorio/caché y puede devolver null.
+end note
+
+@enduml
